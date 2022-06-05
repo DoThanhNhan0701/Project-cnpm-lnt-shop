@@ -10,5 +10,9 @@ public interface HoaDonRepository {
     HoaDon getOne(int id);
     List<HoaDon> getList();
     boolean update(HoaDon hoaDon);
-
+    List<HoaDon> getListAdmin(int page);
+    List<HoaDon> getnew();
+    int getcountNew();
+    boolean huydonhang(int id);
+    boolean capnhat(int id);
 }

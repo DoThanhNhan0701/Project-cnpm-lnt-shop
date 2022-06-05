@@ -7,10 +7,14 @@ package com.cnpm.controller;
 
 import com.cnpm.pojos.Account;
 import com.cnpm.pojos.AccountTmp;
+import com.cnpm.pojos.MatHang;
 import com.cnpm.services.AccountService;
 
+import java.util.Map;
 import java.util.Random;
 import javax.servlet.http.HttpSession;
+
+import com.cnpm.services.HoaDonServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.http.HttpStatus;
@@ -20,12 +24,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 /**
  *
@@ -39,6 +38,8 @@ public class UserController {
     private JavaMailSender mailSender;
     @Autowired
     private AccountService accountService;
+    @Autowired
+    private HoaDonServices hoaDonServices;
     @InitBinder
     public void initBinder(WebDataBinder dataBinder) {
         StringTrimmerEditor stringTrimmerEditor = new StringTrimmerEditor(true);
@@ -89,20 +90,53 @@ public class UserController {
 
     @GetMapping("/profile")
     public String profile(Model model){
-        model.addAttribute("myprofile", this.accountService.getProfile());
+        model.addAttribute("Changeassword", this.accountService.getProfile());
         return "profileUser";
     }
 
+    @PostMapping("/changeassword")
+    public String Changeassword(Model model, @RequestParam(required = false) Map<String, String> param){
+        String passnow = param.get("passnow");
+        String passnew = param.get("passnew");
+        String repassnew = param.get("repassnew");
+        if(!passnew.equals(repassnew)){
+            return "redirect:/profile";
+        }
+        else{
+            if(this.accountService.updatePass(passnew, passnow)){
+                return "redirect:/";
+            }
+            else {
+                System.err.println("===bug===");
+                System.err.println("bug do chinh sua data");
+                return "redirect:/profile";
+            }
+        }
+
+    }
+//    Update avatar
+    @GetMapping("/addavatar")
+    public String Avatar(Model model){
+        model.addAttribute("myprofile", this.accountService.getProfile());
+        return "addavatar";
+    }
     @PostMapping("/updateAvatar")
-    public String updateAvatar(Model model, @ModelAttribute(value = "myprofile")Account acc ){
+    public String addAvatar(Model model, @ModelAttribute(value = "myprofile")Account acc ){
         this.accountService.updateAvatar(acc);
         model.addAttribute("myprofile", this.accountService.getProfile());
 
-        return "profileUser";
+        return "addavatar";
     }
+
     @GetMapping("/profilename")
     public ResponseEntity <Account> getprofile(){
         return new ResponseEntity<>(this.accountService.getProfile(), HttpStatus.OK);
+    }
+
+    @GetMapping("/donhang")
+    public String Donhangcuaban(Model model){
+        model.addAttribute("myhoadon", this.hoaDonServices.getList());
+        return "donhang";
     }
         
 }

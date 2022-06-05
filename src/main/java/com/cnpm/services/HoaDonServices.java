@@ -14,4 +14,9 @@ public interface HoaDonServices {
     boolean update(HoaDon hoaDon);
     boolean thanhtoan(List<GioHang> gioHangList, HoaDon hoaDon);
     boolean thanhtoan(MatHang matHang, HoaDon hoaDon);
+    List<HoaDon> getListAdmin(int page);
+    List<HoaDon> getnew();
+    int getcountNew();
+    boolean huydonhang(int id);
+    boolean capnhat(int id);
 }

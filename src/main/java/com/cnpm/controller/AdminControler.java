@@ -42,6 +42,8 @@ public class AdminControler {
     private AccountService accountService;
     @Autowired
     private CommentService commentService;
+    @Autowired
+    private HoaDonServices hoaDonServices;
     @GetMapping("/themsanpham")
     public String addMatHang(Model model){
         model.addAttribute("mathang", new MatHang());
@@ -79,7 +81,7 @@ public class AdminControler {
             return "addNhomSanPham";
         }
     }
-    
+
     @GetMapping("/loaisanpham")
     public String addLoaiSanPham(Model model){
         List<NhomSanPham> listNSP = this.nhomSanPhamService.getNSP();
@@ -108,14 +110,13 @@ public class AdminControler {
         int page = Integer.parseInt(param.getOrDefault("page", "1"));
         int count = Integer.parseInt(param.getOrDefault("count", "20"));
         model.addAttribute("list", this.matHangService.getList(count, page));
+        model.addAttribute("countnew", this.hoaDonServices.getcountNew());
         return "pageAdmin";
     }
     
     @RequestMapping("/sanpham")
     public String danhsachsanpham(Model model, @RequestParam(required = false) Map<String, String> param){
-        int page = Integer.parseInt(param.getOrDefault("page", "1"));
-        int count = Integer.parseInt(param.getOrDefault("count", "20"));
-        model.addAttribute("list", this.matHangService.getList(count, page));
+        model.addAttribute("list", this.matHangService.getList(param.getOrDefault("kw", ""), Integer.parseInt(param.getOrDefault("page", "1"))));
         return "sanpham";
     }
 //    Phần tài khoản
@@ -134,28 +135,33 @@ public class AdminControler {
         
         return "taikhoan";
     }
+
     @GetMapping("/comment")
     public String ViewComment(Model model){
         model.addAttribute("viewcm", this.commentService.getComment());
         return "comment";
     }
 
-    @GetMapping("/hoadon")
+    @GetMapping("/donDatHang")
     public String ViewHoadon(Model model){
-        //model.addAttribute("viewhd", this.commentService.getComment());
-        return "hoadon";
+        model.addAttribute("listHoaDon", this.hoaDonServices.getListAdmin(0));
+        return "donDatHang";
     }
+    @GetMapping("/donDatHang/new")
+    public String ViewHoadonnew(Model model){
+        model.addAttribute("listHoaDon", this.hoaDonServices.getnew());
+        return "donDatHang";
+    }
+
 
     @GetMapping("/deleteComment/{id}")
     public String deleteComment(@PathVariable int id) {
         this.commentService.delete(id);
         return "redirect:/admin/comment";
     }
-    @GetMapping("/deleteAccount/{id}")
-    public String deleteAccount(@PathVariable int id) {
-        this.accountService.delete(id);
-        return "redirect:/admin/taikhoan";
+    @GetMapping("/giaohang/{id}")
+    public String giaohang(@PathVariable(name = "id")Integer id){
+        this.hoaDonServices.capnhat(id);
+        return "redirect:/admin/donDatHang";
     }
-//    Kết thúc phần tài khoản
-
 }
